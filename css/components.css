@@ -1,0 +1,748 @@
+/* ============================================================
+   components.css —— 组件样式
+   作用：内容区各视图组件 —— 菜品卡片网格、公告板、
+        食堂介绍页、随机推荐卡片、菜品详情模态框、空状态。
+   ============================================================ */
+
+/* ===== 菜品网格 ===== */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 22px 18px;
+    padding-bottom: 8px;
+}
+
+/* 菜品卡片 */
+.menu-card {
+    background: #ffffff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(245, 179, 66, 0.15);
+}
+
+.menu-card .card-image {
+    position: relative;
+    width: 100%;
+    padding-top: 75%;
+    background: #f0ebe5;
+    overflow: hidden;
+}
+
+.menu-card .card-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    display: block;
+}
+
+.menu-card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+.menu-card .card-body {
+    padding: 14px 14px 16px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-card .card-body h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d2a24;
+    letter-spacing: 0.3px;
+    line-height: 1.4;
+    margin: 0 0 4px 0;
+}
+
+/* 价格标签 */
+.menu-card .card-body .price-tag {
+    font-size: 15px;
+    font-weight: 500;
+    color: #f5b342;
+    background: rgba(245, 179, 66, 0.10);
+    padding: 2px 16px;
+    border-radius: 30px;
+    display: inline-block;
+}
+
+/* 卡片入场动画 */
+.menu-card {
+    animation: cardFadeIn 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes cardFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu-card:nth-child(1) {
+    animation-delay: 0.02s;
+}
+.menu-card:nth-child(2) {
+    animation-delay: 0.06s;
+}
+.menu-card:nth-child(3) {
+    animation-delay: 0.10s;
+}
+.menu-card:nth-child(4) {
+    animation-delay: 0.14s;
+}
+.menu-card:nth-child(5) {
+    animation-delay: 0.18s;
+}
+.menu-card:nth-child(6) {
+    animation-delay: 0.22s;
+}
+.menu-card:nth-child(7) {
+    animation-delay: 0.26s;
+}
+.menu-card:nth-child(8) {
+    animation-delay: 0.30s;
+}
+.menu-card:nth-child(9) {
+    animation-delay: 0.34s;
+}
+.menu-card:nth-child(10) {
+    animation-delay: 0.38s;
+}
+.menu-card:nth-child(11) {
+    animation-delay: 0.42s;
+}
+.menu-card:nth-child(12) {
+    animation-delay: 0.46s;
+}
+
+/* ===== 店面图片横幅（门店菜单上方） ===== */
+.shop-banner {
+    position: relative;
+    width: 100%;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+
+.shop-banner img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 用 padding-top 撑出 32% 的高度，保证响应式（与卡片图片同思路） */
+.shop-banner::before {
+    content: '';
+    display: block;
+    padding-top: 32%;
+}
+
+/* 底部渐变遮罩 + 店名/简介 */
+.shop-banner .shop-banner-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 42px 20px 16px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+    color: #fff;
+    pointer-events: none;
+}
+
+.shop-banner .shop-banner-name {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.shop-banner .shop-banner-desc {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-top: 3px;
+    line-height: 1.5;
+}
+
+/* ===== 公告板（文本框风格） ===== */
+.bulletin-panel {
+    padding: 4px 0;
+}
+
+.bulletin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 单条公告 */
+.bulletin-item {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px 24px 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    transition: box-shadow 0.2s;
+}
+
+.bulletin-item:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(245, 179, 66, 0.1);
+}
+
+/* 公告标题行 */
+.bulletin-item .b-title {
+    background: #f8f6f4;
+    border: 1px solid #e0dad4;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d2a24;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s;
+}
+
+/* 公告类型标签 */
+.bulletin-item .b-title .b-tag {
+    font-size: 12px;
+    font-weight: 400;
+    color: #b8ada2;
+    background: #f0ebe5;
+    padding: 2px 14px;
+    border-radius: 30px;
+    white-space: nowrap;
+}
+
+/* 公告正文 */
+.bulletin-item .b-content {
+    background: #faf8f6;
+    border: 1px solid #e0dad4;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 15px;
+    color: #2d2a24;
+    line-height: 1.7;
+    min-height: 50px;
+    transition: border-color 0.2s;
+}
+
+/* 公告时间 */
+.bulletin-item .b-time {
+    font-size: 12px;
+    color: #b8ada2;
+    text-align: right;
+    padding-top: 10px;
+    margin-top: 6px;
+    border-top: 1px solid #f0ebe5;
+}
+
+/* 空状态（无公告时） */
+.bulletin-empty {
+    text-align: center;
+    padding: 60px 20px 50px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+
+.bulletin-empty .empty-icon {
+    font-size: 56px;
+    color: #ddd6ce;
+    margin-bottom: 18px;
+    display: block;
+}
+
+.bulletin-empty .empty-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d2a24;
+    margin-bottom: 8px;
+}
+
+.bulletin-empty .empty-hint {
+    font-size: 15px;
+    color: #b8ada2;
+    line-height: 1.6;
+}
+
+.bulletin-empty .empty-hint i {
+    color: #f5b342;
+}
+
+/* ===== 食堂介绍页 ===== */
+.canteen-intro {
+    padding: 4px 0;
+}
+
+/* 介绍页头部（多图轮播 + 名称描述） */
+.canteen-intro .intro-header {
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    margin-bottom: 28px;
+}
+
+/* ===== 图片轮播（食堂介绍页） ===== */
+.canteen-intro .intro-slider {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #e8e0d8;
+}
+
+/* 滑动轨道：所有图片横向排布，通过 transform 平移切换 */
+.canteen-intro .slider-track {
+    display: flex;
+    transition: transform 0.45s ease;
+}
+
+.canteen-intro .slide {
+    flex: 0 0 100%;
+    position: relative;
+    padding-top: 36%;
+}
+
+.canteen-intro .slide img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 左右切换按钮 */
+.canteen-intro .slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 5;
+}
+
+.canteen-intro .slider-btn.prev {
+    left: 14px;
+}
+
+.canteen-intro .slider-btn.next {
+    right: 14px;
+}
+
+.canteen-intro .slider-btn:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* 圆点指示器 */
+.canteen-intro .slider-dots {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 5;
+}
+
+.canteen-intro .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.canteen-intro .dot.active {
+    background: #f5b342;
+    transform: scale(1.2);
+}
+
+.canteen-intro .intro-info {
+    padding: 28px 32px 32px;
+}
+
+.canteen-intro .intro-header .intro-info .intro-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2d2a24;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.canteen-intro .intro-header .intro-info .intro-name i {
+    color: #f5b342;
+    font-size: 26px;
+}
+
+.canteen-intro .intro-header .intro-info .intro-desc {
+    font-size: 16px;
+    color: #4a453e;
+    margin-top: 8px;
+    line-height: 1.7;
+}
+
+/* 统计数字（楼层 / 门店 / 菜品） */
+.canteen-intro .intro-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.canteen-intro .intro-stats .stat-item {
+    background: #ffffff;
+    padding: 18px 16px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+
+.canteen-intro .intro-stats .stat-item .stat-number {
+    font-size: 26px;
+    font-weight: 700;
+    color: #f5b342;
+}
+
+.canteen-intro .intro-stats .stat-item .stat-label {
+    font-size: 14px;
+    color: #9a8e82;
+    margin-top: 4px;
+}
+
+/* 楼层导览卡片 */
+.canteen-intro .intro-floors {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.canteen-intro .intro-floors .floor-card {
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.canteen-intro .intro-floors .floor-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(245, 179, 66, 0.1);
+    background: #fefcf9;
+}
+
+.canteen-intro .intro-floors .floor-card .f-icon {
+    font-size: 22px;
+    color: #f5b342;
+    width: 40px;
+    text-align: center;
+}
+
+.canteen-intro .intro-floors .floor-card .f-info {
+    flex: 1;
+}
+
+.canteen-intro .intro-floors .floor-card .f-info .f-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d2a24;
+}
+
+.canteen-intro .intro-floors .floor-card .f-info .f-count {
+    font-size: 13px;
+    color: #9a8e82;
+}
+
+.canteen-intro .intro-floors .floor-card .f-arrow {
+    color: #b8ada2;
+    font-size: 14px;
+}
+
+/* ===== 随机推荐 ===== */
+.random-panel {
+    padding: 4px 0;
+}
+
+/* 随机推荐大卡片 */
+.random-card {
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    max-width: 600px;
+    margin: 0 auto;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.random-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(245, 179, 66, 0.15);
+}
+
+.random-card .rc-image {
+    width: 100%;
+    padding-top: 56%;
+    background: #f0ebe5;
+    position: relative;
+}
+
+.random-card .rc-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.random-card .rc-body {
+    padding: 24px 28px 28px;
+}
+
+.random-card .rc-body .rc-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d2a24;
+    margin-bottom: 4px;
+}
+
+.random-card .rc-body .rc-price {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f5b342;
+    margin-bottom: 12px;
+}
+
+.random-card .rc-body .rc-location {
+    font-size: 14px;
+    color: #6a5f53;
+    background: #f7f2ed;
+    padding: 6px 16px;
+    border-radius: 30px;
+    display: inline-block;
+    margin-bottom: 14px;
+}
+
+.random-card .rc-body .rc-location i {
+    margin-right: 6px;
+    color: #f5b342;
+}
+
+.random-card .rc-body .rc-desc {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #4a453e;
+    padding-top: 14px;
+    border-top: 1px solid #eee9e4;
+    margin-top: 4px;
+}
+
+.random-card .rc-body .rc-hint {
+    font-size: 14px;
+    color: #b8ada2;
+    margin-top: 12px;
+    text-align: center;
+    font-style: italic;
+}
+
+/* 换一道按钮 */
+.random-panel .refresh-btn {
+    display: block;
+    margin: 24px auto 0;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 30px;
+    background: #f5b342;
+    color: #1e1b16;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.random-panel .refresh-btn:hover {
+    background: #e6a535;
+    transform: scale(1.02);
+}
+
+.random-panel .refresh-btn i {
+    margin-right: 8px;
+}
+
+/* ===== 模态框 ===== */
+/* 遮罩层 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+/* 模态卡片 */
+.modal-card {
+    background: #ffffff;
+    max-width: 500px;
+    width: 100%;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
+    animation: modalIn 0.3s ease;
+    position: relative;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-card .modal-image {
+    width: 100%;
+    padding-top: 60%;
+    background: #f0ebe5;
+    position: relative;
+}
+
+.modal-card .modal-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.modal-card .modal-body {
+    padding: 26px 26px 30px;
+}
+
+.modal-card .modal-body .modal-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2d2a24;
+    margin-bottom: 6px;
+}
+
+.modal-card .modal-body .modal-price {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f5b342;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal-card .modal-body .modal-price i {
+    font-size: 18px;
+}
+
+.modal-card .modal-body .modal-desc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #4a453e;
+    border-top: 1px solid #eee9e4;
+    padding-top: 14px;
+    margin-top: 4px;
+}
+
+/* 关闭按钮 */
+.modal-card .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-card .modal-close:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* 通用空状态（数据缺失时） */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #b8ada2;
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #ddd6ce;
+}
+
+.empty-state p {
+    font-size: 18px;
+}

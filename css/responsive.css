@@ -1,0 +1,508 @@
+/* ============================================================
+   responsive.css —— 响应式样式
+   作用：针对不同屏幕宽度（≤1024px / ≤768px / ≤480px）
+        调整布局、字号与间距，保证在平板、手机等设备上可用。
+   ============================================================ */
+
+/* ===== 平板（≤1024px） ===== */
+@media (max-width: 1024px) {
+    .app {
+        height: 95vh;
+        max-height: none;
+        border-radius: 20px;
+    }
+    .sidebar {
+        width: 210px;
+        padding: 14px 10px 12px;
+    }
+    .sidebar-brand h1 {
+        font-size: 18px;
+    }
+    .sidebar-brand i {
+        font-size: 20px;
+        padding: 6px;
+    }
+    .menu-item {
+        padding: 7px 10px;
+        font-size: 13px;
+        gap: 10px;
+    }
+    .menu-item i {
+        font-size: 14px;
+        width: 20px;
+    }
+    .menu-item.level-1 {
+        padding-left: 24px;
+        font-size: 12px;
+    }
+    .menu-item.level-2 {
+        padding-left: 38px;
+        font-size: 11px;
+    }
+    .main {
+        padding: 18px 18px 20px;
+    }
+    .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 16px;
+    }
+    .main-header .header-left .page-title {
+        font-size: 18px;
+    }
+    .main-header .header-left .shop-name {
+        font-size: 16px;
+    }
+    .random-card .rc-body {
+        padding: 18px 20px 22px;
+    }
+    .random-card .rc-body .rc-name {
+        font-size: 20px;
+    }
+    .canteen-intro .intro-header .intro-info {
+        padding: 20px 24px 24px;
+    }
+    .canteen-intro .intro-header .intro-info .intro-name {
+        font-size: 24px;
+    }
+    .canteen-intro .intro-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    .canteen-intro .intro-stats .stat-item .stat-number {
+        font-size: 22px;
+    }
+    .canteen-intro .intro-floors {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    .bulletin-item {
+        padding: 16px 18px 16px;
+    }
+    .bulletin-item .b-title {
+        font-size: 15px;
+    }
+}
+
+/* ===== 手机横屏/大屏手机（≤768px） ===== */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    .app {
+        flex-direction: column;
+        height: auto;
+        min-height: 94vh;
+        max-height: none;
+        border-radius: 18px;
+    }
+    /* 侧边栏改为横向滚动条式导航 */
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 10px 12px 8px;
+        gap: 4px;
+        align-items: flex-start;
+        border-radius: 18px 18px 0 0;
+        overflow-y: visible;
+        max-height: 200px;
+    }
+    .sidebar-brand {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+        flex: 0 0 auto;
+    }
+    .sidebar-brand h1 {
+        font-size: 16px;
+    }
+    .sidebar-brand i {
+        font-size: 16px;
+        padding: 5px;
+    }
+    .sidebar-brand span {
+        display: none;
+    }
+    .menu-tree {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+        flex: 1 0 100%;
+        order: 2;
+    }
+    .menu-item {
+        padding: 4px 12px;
+        font-size: 12px;
+        gap: 6px;
+        border-radius: 30px;
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 40px;
+    }
+    .menu-item i {
+        font-size: 12px;
+        width: 16px;
+    }
+    .menu-item .badge {
+        display: none;
+    }
+    .menu-item .arrow {
+        display: none;
+    }
+    .menu-item.active::before {
+        display: none;
+    }
+    .menu-item.level-1 {
+        padding-left: 12px;
+        font-size: 11px;
+    }
+    .menu-item.level-2 {
+        padding-left: 12px;
+        font-size: 10px;
+    }
+    .menu-item.function-item {
+        background: rgba(245, 179, 66, 0.08);
+    }
+    .menu-divider {
+        display: none;
+    }
+    .sidebar-footer {
+        display: none;
+    }
+    .main {
+        padding: 12px 12px 16px;
+        border-radius: 0 0 18px 18px;
+    }
+    .main-header .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .main-header .header-left {
+        gap: 8px;
+    }
+    .main-header .header-left .page-title {
+        font-size: 17px;
+    }
+    .main-header .header-left .floor-tag {
+        font-size: 11px;
+        padding: 2px 12px;
+    }
+    .main-header .header-left .shop-name {
+        font-size: 15px;
+        padding: 2px 12px;
+    }
+    .main-header .header-right {
+        font-size: 12px;
+    }
+    .main-header .sub-desc {
+        font-size: 13px;
+    }
+    .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    .menu-card .card-body {
+        padding: 10px 10px 12px;
+    }
+    .menu-card .card-body h3 {
+        font-size: 14px;
+    }
+    .menu-card .card-body .price-tag {
+        font-size: 13px;
+        padding: 2px 12px;
+    }
+    .modal-card .modal-body {
+        padding: 18px 18px 22px;
+    }
+    .modal-card .modal-body .modal-title {
+        font-size: 20px;
+    }
+    .modal-card .modal-body .modal-price {
+        font-size: 18px;
+    }
+    .random-card .rc-body {
+        padding: 16px 18px 20px;
+    }
+    .random-card .rc-body .rc-name {
+        font-size: 18px;
+    }
+    .random-card .rc-body .rc-price {
+        font-size: 17px;
+    }
+    .bulletin-item {
+        padding: 14px 16px 14px;
+    }
+    .bulletin-item .b-title {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+    .bulletin-item .b-content {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+    .bulletin-empty {
+        padding: 40px 16px 36px;
+    }
+    .bulletin-empty .empty-icon {
+        font-size: 42px;
+    }
+    .bulletin-empty .empty-title {
+        font-size: 18px;
+    }
+    .canteen-intro .intro-header .intro-info {
+        padding: 16px 18px 20px;
+    }
+    .canteen-intro .intro-header .intro-info .intro-name {
+        font-size: 20px;
+    }
+    .canteen-intro .intro-header .intro-info .intro-desc {
+        font-size: 14px;
+    }
+    .canteen-intro .intro-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    .canteen-intro .intro-stats .stat-item {
+        padding: 12px 10px;
+    }
+    .canteen-intro .intro-stats .stat-item .stat-number {
+        font-size: 18px;
+    }
+    .canteen-intro .intro-stats .stat-item .stat-label {
+        font-size: 12px;
+    }
+    .canteen-intro .intro-floors {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .canteen-intro .intro-floors .floor-card {
+        padding: 12px 14px;
+    }
+    .canteen-intro .intro-floors .floor-card .f-icon {
+        font-size: 18px;
+        width: 32px;
+    }
+    .canteen-intro .intro-floors .floor-card .f-info .f-name {
+        font-size: 13px;
+    }
+    .canteen-intro .intro-floors .floor-card .f-info .f-count {
+        font-size: 12px;
+    }
+}
+
+/* ===== 小屏手机（≤480px） ===== */
+@media (max-width: 480px) {
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .sidebar {
+        padding: 8px 8px 6px;
+        max-height: 170px;
+    }
+    .menu-item {
+        padding: 3px 10px;
+        font-size: 11px;
+        gap: 4px;
+    }
+    .menu-item i {
+        font-size: 11px;
+        width: 14px;
+    }
+    .menu-item.level-1 {
+        padding-left: 10px;
+        font-size: 10px;
+    }
+    .menu-item.level-2 {
+        padding-left: 10px;
+        font-size: 10px;
+    }
+    .main {
+        padding: 10px 8px 12px;
+    }
+    .main-header .header-left .page-title {
+        font-size: 15px;
+    }
+    .main-header .header-left .shop-name {
+        font-size: 13px;
+        padding: 1px 10px;
+    }
+    .main-header .header-left .floor-tag {
+        font-size: 10px;
+        padding: 2px 10px;
+    }
+    .main-header .sub-desc {
+        font-size: 12px;
+    }
+    .menu-card .card-body h3 {
+        font-size: 13px;
+    }
+    .menu-card .card-body .price-tag {
+        font-size: 12px;
+        padding: 1px 10px;
+    }
+    .random-card .rc-body .rc-name {
+        font-size: 16px;
+    }
+    .random-card .rc-body .rc-price {
+        font-size: 15px;
+    }
+    .random-card .rc-body .rc-location {
+        font-size: 12px;
+        padding: 4px 12px;
+    }
+    .random-card .rc-body .rc-desc {
+        font-size: 14px;
+    }
+    .random-panel .refresh-btn {
+        padding: 10px 24px;
+        font-size: 14px;
+    }
+    .canteen-intro .intro-floors {
+        grid-template-columns: 1fr;
+    }
+    .bulletin-item .b-title {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+    .bulletin-item .b-content {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+}
+
+/* ============================================================
+   手机端（≤768px）顶部下拉索引抽屉
+   说明：手机端侧边栏收窄为「品牌 + 右上角索引按钮」的顶栏，
+        菜单树整体收进下拉抽屉，点击按钮展开/收起，选中后自动收起。
+        本区块放在文件末尾，覆盖上面原有的「横向折叠条」样式；
+        桌面端（>768px）不生效，查看效果保持不变。
+   ============================================================ */
+@media (max-width: 768px) {
+    /* 顶栏：只保留品牌 + 索引按钮 */
+    .sidebar {
+        position: relative;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        max-height: none;
+        overflow: visible;
+        flex-shrink: 0;
+        border-radius: 18px 18px 0 0;
+    }
+    .sidebar-brand {
+        margin: 0;
+        padding: 0;
+        border-bottom: none;
+    }
+
+    /* 右上角索引弹出按钮 */
+    .index-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 30px;
+        background: #f5b342;
+        color: #1e1b16;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        position: relative;
+        z-index: 860; /* 高于遮罩(800)，抽屉展开时仍可点击收起 */
+        transition: background 0.2s, transform 0.2s;
+    }
+    .index-toggle:active {
+        transform: scale(0.95);
+    }
+
+    /* 遮罩层 */
+    .index-mask {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 800;
+    }
+    .index-mask.open {
+        display: block;
+    }
+
+    /* 抽屉：从顶栏下方滑出 */
+    .menu-tree {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 850; /* 高于遮罩(800)、低于按钮(860) */
+        flex: none;
+        order: 0;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 2px;
+        padding: 10px 12px 14px;
+        background: linear-gradient(145deg, #24201b 0%, #2a2520 100%);
+        border-radius: 0 0 18px 18px;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+        max-height: 70vh;
+        overflow-y: auto;
+        opacity: 0;
+        transform: translateY(-12px);
+        pointer-events: none;
+        transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+    .menu-tree.open {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    /* 抽屉内菜单项：竖向整行排列（覆盖上方“胶囊”样式） */
+    .menu-item {
+        width: 100%;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 13px;
+        gap: 10px;
+    }
+    .menu-item i {
+        font-size: 14px;
+        width: 20px;
+    }
+    .menu-item .badge {
+        display: inline-block;
+    }
+    .menu-item .arrow {
+        display: inline-block;
+    }
+    .menu-item.active::before {
+        display: block;
+    }
+    .menu-item.level-1 {
+        padding-left: 32px;
+        font-size: 12px;
+    }
+    .menu-item.level-2 {
+        padding-left: 50px;
+        font-size: 12px;
+    }
+    /* 恢复功能项与食堂之间的分隔线 */
+    .menu-divider {
+        display: block;
+        margin: 8px 4px;
+    }
+
+    /* 抽屉展开时锁定页面滚动 */
+    body.index-open {
+        overflow: hidden;
+    }
+}

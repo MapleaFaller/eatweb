@@ -1,0 +1,341 @@
+/* ============================================================
+   layout.css —— 页面布局
+   作用：整体两栏布局 —— 左侧深色边栏（品牌区 + 菜单树 + 底部信息）
+        与右侧主内容区（页头 + 可滚动内容区）。
+   ============================================================ */
+
+/* ===== 手机端索引抽屉（默认隐藏，≤768px 时在 responsive.css 中启用） ===== */
+/* 右上角索引弹出按钮：桌面端隐藏，手机端显示 */
+.index-toggle {
+    display: none;
+}
+
+/* 索引抽屉遮罩层：默认隐藏，手机端展开抽屉时显示 */
+.index-mask {
+    display: none;
+}
+
+/* 手机端抽屉展开时锁定页面滚动（仅手机端生效，见 responsive.css） */
+body.index-open {
+    overflow: hidden;
+}
+
+/* ===== 左侧边栏 ===== */
+.sidebar {
+    width: 280px;
+    min-width: 200px;
+    background: linear-gradient(145deg, #1e1b16 0%, #2a2520 100%);
+    color: #f0ebe5;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 14px 14px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+/* 边栏顶部品牌区 */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 12px;
+}
+
+.sidebar-brand i {
+    font-size: 24px;
+    color: #f5b342;
+    background: rgba(245, 179, 66, 0.15);
+    padding: 8px;
+    border-radius: 14px;
+}
+
+.sidebar-brand h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #f5ede6;
+}
+
+.sidebar-brand span {
+    display: block;
+    font-size: 11px;
+    font-weight: 300;
+    color: #b8ada2;
+    letter-spacing: 2px;
+    margin-top: 2px;
+}
+
+/* ===== 菜单树 ===== */
+.menu-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    color: #cbc3ba;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    position: relative;
+    user-select: none;
+}
+
+.menu-item i {
+    font-size: 16px;
+    width: 22px;
+    text-align: center;
+    color: #9a8e82;
+    transition: color 0.25s ease;
+    flex-shrink: 0;
+}
+
+.menu-item .label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.menu-item .badge {
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 1px 12px;
+    border-radius: 30px;
+    color: #b8ada2;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+}
+
+.menu-item .arrow {
+    font-size: 11px;
+    color: #6a5f53;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+
+.menu-item .arrow.open {
+    transform: rotate(90deg);
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #f5ede6;
+}
+
+.menu-item:hover i {
+    color: #f5b342;
+}
+
+.menu-item.active {
+    background: rgba(245, 179, 66, 0.16);
+    color: #f5ede6;
+    box-shadow: inset 0 0 0 1px rgba(245, 179, 66, 0.2);
+}
+
+.menu-item.active i {
+    color: #f5b342;
+}
+
+.menu-item.active .badge {
+    background: rgba(245, 179, 66, 0.2);
+    color: #f5b342;
+}
+
+.menu-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20%;
+    height: 60%;
+    width: 3px;
+    background: #f5b342;
+    border-radius: 0 4px 4px 0;
+}
+
+/* 二级菜单（楼层） */
+.menu-item.level-1 {
+    padding-left: 28px;
+    font-size: 13px;
+}
+.menu-item.level-1 i {
+    font-size: 14px;
+    width: 18px;
+}
+
+/* 三级菜单（门店） */
+.menu-item.level-2 {
+    padding-left: 44px;
+    font-size: 12px;
+}
+.menu-item.level-2 i {
+    font-size: 12px;
+    width: 16px;
+}
+
+/* 功能项（公告 / 随机推荐） */
+.menu-item.function-item {
+    background: rgba(245, 179, 66, 0.05);
+    border-radius: 12px;
+    margin-bottom: 4px;
+}
+.menu-item.function-item:hover {
+    background: rgba(245, 179, 66, 0.12);
+}
+.menu-item.function-item.active {
+    background: rgba(245, 179, 66, 0.2);
+    box-shadow: inset 0 0 0 1px rgba(245, 179, 66, 0.3);
+}
+.menu-item.function-item i {
+    color: #f5b342;
+}
+
+/* 菜单分隔线 */
+.menu-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin: 6px 0 8px 0;
+}
+
+/* 边栏底部信息 */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 12px;
+    color: #8a7f73;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-footer i {
+    font-size: 13px;
+    color: #6a5f53;
+}
+
+/* ===== 右侧主内容 ===== */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fcfaf8;
+    padding: 24px 30px 28px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* 主内容区页头 */
+.main-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee9e4;
+    flex-shrink: 0;
+}
+
+.main-header .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.main-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.main-header .header-left .page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2d2a24;
+}
+
+/* 楼层标签 */
+.main-header .header-left .floor-tag {
+    font-size: 13px;
+    background: #f5b342;
+    color: #1e1b16;
+    padding: 3px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* 门店名标签 */
+.main-header .header-left .shop-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d2a24;
+    background: rgba(245, 179, 66, 0.12);
+    padding: 2px 16px;
+    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.main-header .header-left .shop-name i {
+    font-size: 15px;
+    color: #f5b342;
+}
+
+/* 页头右侧统计信息 */
+.main-header .header-right {
+    font-size: 14px;
+    color: #9a8e82;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.main-header .header-right i {
+    color: #f5b342;
+}
+
+/* 页头下方说明文字 */
+.main-header .sub-desc {
+    font-size: 14px;
+    color: #6a5f53;
+    padding-left: 4px;
+    margin-top: 2px;
+    line-height: 1.5;
+}
+
+/* 可滚动内容容器（各视图渲染于此） */
+.content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 18px;
+    padding-right: 4px;
+}
+
+/* 内容区自定义滚动条 */
+.content-wrapper::-webkit-scrollbar {
+    width: 4px;
+}
+.content-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+.content-wrapper::-webkit-scrollbar-thumb {
+    background: #ddd6ce;
+    border-radius: 10px;
+}
