@@ -19,8 +19,7 @@
 const DATA_DIR = 'data';                              // 存放食堂菜品 xlsx 的目录
 const IMG_DIR = 'images';                             // 存放菜品图片的目录
 const CANTEEN_FILES = ['First.xlsx', 'Second.xlsx', 'Third.xlsx']; // 与 canteenData 顺序一一对应
-const IMG_EXTS = ['png', 'jpg', 'jpeg', 'webp', 'svg'];            // 查找顺序：真实照片优先
-const MAX_IMG_PROBES = IMG_EXTS.length;
+const IMG_EXTS = ['png', 'jpg', 'jpeg', 'webp', 'svg'];
 
 // 兜底占位图（无任何图片文件时显示）
 const IMG_PLACEHOLDER = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%23f0ebe5" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-family="sans-serif" font-size="20" fill="%23b8ada2" text-anchor="middle" dominant-baseline="central"%3E🍽%E3%80%80暂无图片%3C/text%3E%3C/svg%3E';
@@ -68,9 +67,14 @@ function buildDishCode(canteenIdx, floorNum, shopIdx1, dishIdx1) {
     return `${canteenIdx + 1}${floorNum}${shopIdx1}${dishIdx1}`;
 }
 
-/** 一道菜可能对应的本地图片地址列表（按优先级） */
+/** 一道菜可能的本地图片候选列表（优先级 = 扩展名顺序；小写/大写各试一次，兼容 .PNG/.JPG） */
 function dishImageCandidates(item) {
-    return IMG_EXTS.map(ext => `${IMG_DIR}/${item.code}.${ext}`);
+    const urls = [];
+    IMG_EXTS.forEach(ext => {
+        urls.push(`${IMG_DIR}/${item.code}.${ext}`);
+        urls.push(`${IMG_DIR}/${item.code}.${ext.toUpperCase()}`);
+    });
+    return urls;
 }
 
 /** 探测某个 URL 能否正常加载 */
@@ -92,7 +96,9 @@ function probeImageUrl(url) {
 
 /**
  * 为一道菜解析出可用的本地图片地址（结果缓存到 item._imgUrl）
- * 无可用图片文件时返回 ''（视图层会用兜底占位图）。
+ * 方式：把全部候选 URL 一次性并行探测，从“加载成功”的候选中
+ * 选取优先级最高（扩展名顺序最靠前）的那一个，避免串行逐个请求
+ * 造成的等待；无任何可用图片文件时返回 ''（视图层会用兜底占位图）。
  */
 async function resolveDishImage(item) {
     if (item._imgUrl !== undefined) return item._imgUrl;
@@ -102,19 +108,15 @@ async function resolveDishImage(item) {
         item._imgUrl = dishImageCache.get(item.code);
         return item._imgUrl;
     }
-    let tries = 0;
-    for (const url of dishImageCandidates(item)) {
-        if (tries >= MAX_IMG_PROBES) break;
-        tries++;
-        if (await probeImageUrl(url)) {
-            dishImageCache.set(item.code, url);
-            item._imgUrl = url;
-            return url;
-        }
-    }
-    dishImageCache.set(item.code, '');
-    item._imgUrl = '';
-    return '';
+
+    const urls = dishImageCandidates(item);
+    const settled = await Promise.all(urls.map(url => probeImageUrl(url)));
+    const bestIdx = settled.findIndex(ok => ok);
+    const url = bestIdx >= 0 ? urls[bestIdx] : '';
+
+    dishImageCache.set(item.code, url);
+    item._imgUrl = url;
+    return url;
 }
 
 /** 并行解析一家店全部菜品图片 */
