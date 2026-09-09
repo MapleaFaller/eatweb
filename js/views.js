@@ -6,9 +6,19 @@
         - renderRandom        随机推荐
         - renderCanteenMenu   门店菜品网格
         - renderAll           统一调度入口（先刷新菜单树，再选视图）
-   依赖：data.js、utils.js、state.js、menu.js（renderMenuTree）、
+   说明：
+        - 菜品数据由 loader.js 从本地 data/*.xlsx 载入 canteenData；
+          菜品图片在渲染前先调用 resolveShopImages / resolveDishImage
+          从本地 images/ 解析（见 loader.js）。
+        - 带 async 的渲染使用“渲染序号”防止快速切换时旧渲染覆盖新视图。
+   依赖：data.js、utils.js、state.js、loader.js、menu.js（renderMenuTree）、
         modal.js（openModal）
    ============================================================ */
+
+// 渲染序号：每次 renderAll / 随机刷新递增；异步渲染结束后若序号已过期则放弃写入
+let renderSeq = 0;
+function beginRender() { return ++renderSeq; }
+function isRenderCurrent(seq) { return seq === renderSeq; }
 
 // ============================================================
 //  食堂介绍页图片轮播
@@ -258,7 +268,7 @@ function renderCanteenIntro() {
 }
 
 /** 渲染随机推荐 */
-function renderRandom() {
+async function renderRandom(seq) {
     stopIntroSlider();
     if (!lastRandomItem) {
         lastRandomItem = getRandomItem();
@@ -273,7 +283,7 @@ function renderRandom() {
         contentWrapper.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-dice"></i>
-                <p>暂无菜品数据，请先添加菜品</p>
+                <p>暂无菜品数据，请先添加菜品（编辑 data/*.xlsx 后刷新）</p>
             </div>
         `;
         pageTitle.textContent = '🎲 今天吃什么';
@@ -284,7 +294,11 @@ function renderRandom() {
         return;
     }
 
-    const imgUrl = item.image || 'https://picsum.photos/seed/default/400/300';
+    // 先解析本地菜品图片，避免渲染闪烁
+    await resolveDishImage(item);
+    if (seq && !isRenderCurrent(seq)) return;
+
+    const imgUrl = itemImage(item);
     const recommend = item._recommend || getRandomRecommend();
     const locationText = `${item.canteenName} · ${item.floorLabel} · ${item.shopName}`;
 
@@ -311,7 +325,7 @@ function renderRandom() {
     const card = document.getElementById('randomCard');
     if (card) {
         card.addEventListener('click', () => {
-            openModal(item, imgUrl);
+            openModal(item, itemImage(item));
         });
     }
 
@@ -322,7 +336,7 @@ function renderRandom() {
             if (lastRandomItem) {
                 lastRandomItem._recommend = getRandomRecommend();
             }
-            renderRandom();
+            renderRandom(beginRender());
         });
     }
 
@@ -333,8 +347,8 @@ function renderRandom() {
     subDesc.textContent = `${item.canteenName} · ${item.floorLabel} · ${item.shopName}`;
 }
 
-/** 渲染菜品列表 */
-function renderCanteenMenu() {
+/** 渲染菜品列表（菜品图片为本地 images/ 文件，渲染前先解析） */
+async function renderCanteenMenu(seq) {
     stopIntroSlider();
     const canteen = getCanteen(activeMenuId);
     if (!canteen) {
@@ -380,6 +394,10 @@ function renderCanteenMenu() {
         return;
     }
 
+    // 预解析本店全部菜品图片（本地文件，速度快；结果缓存后无需重复探测）
+    await resolveShopImages(shop);
+    if (seq && !isRenderCurrent(seq)) return;
+
     pageTitle.textContent = canteen.name;
     const floorLabel = floor.label || '';
     const tag = floorLabel.includes('·') ? floorLabel.split('·')[0].trim() : floorLabel;
@@ -390,7 +408,7 @@ function renderCanteenMenu() {
     itemCount.textContent = `${shop.items.length} 道菜品`;
     subDesc.textContent = shop.desc || '';
 
-    // 店面图片展示（位于菜单网格上方）
+    // 店面图片展示（位于菜单网格上方；无本地店招时回退网络占位图）
     const shopImg = shop.image || `https://picsum.photos/seed/${shop.id}/900/300`;
 
     let html = `
@@ -403,7 +421,7 @@ function renderCanteenMenu() {
         </div>
         <div class="menu-grid">`;
     shop.items.forEach((item, index) => {
-        const imgUrl = item.image || 'https://picsum.photos/seed/default/400/300';
+        const imgUrl = itemImage(item);
         html += `
             <div class="menu-card" data-index="${index}">
                 <div class="card-image">
@@ -424,9 +442,8 @@ function renderCanteenMenu() {
     cards.forEach((card, index) => {
         const item = shop.items[index];
         if (item) {
-            const imgUrl = item.image || 'https://picsum.photos/seed/default/400/300';
             card.addEventListener('click', () => {
-                openModal(item, imgUrl);
+                openModal(item, itemImage(item));
             });
         }
     });
@@ -440,13 +457,14 @@ function renderCanteenMenu() {
 // ============================================================
 //  统一渲染
 // ============================================================
-function renderAll() {
+async function renderAll() {
+    const seq = beginRender();
     renderMenuTree();
 
     if (activeMenuId === 'bulletin') {
         renderBulletin();
     } else if (activeMenuId === 'random') {
-        renderRandom();
+        await renderRandom(seq);
     } else {
         const canteen = getCanteen(activeMenuId);
         if (!canteen) {
@@ -474,7 +492,7 @@ function renderAll() {
         }
 
         if (hasShop) {
-            renderCanteenMenu();
+            await renderCanteenMenu(seq);
         } else {
             renderCanteenIntro();
         }
