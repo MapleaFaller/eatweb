@@ -7,9 +7,11 @@
         - renderCanteenMenu   门店菜品网格
         - renderAll           统一调度入口（先刷新菜单树，再选视图）
    说明：
-        - 菜品数据由 loader.js 从本地 data/*.xlsx 载入 canteenData；
+        - 菜品数据由 loader.js 从本地 data/*.xlsx 载入 canteenData
+          （早餐数据来自 data/breakfast/*.xlsx，挂在门店的 breakfastItems 上）；
+          当前餐次由 state.js 的 mealMode 决定，取菜统一走 shopItems(shop)；
           菜品图片在渲染前先调用 resolveShopImages / resolveDishImage
-          从本地 images/ 解析（见 loader.js）。
+          从本地 images/ 或 images-breakfast/ 解析（见 loader.js）。
         - 带 async 的渲染使用“渲染序号”防止快速切换时旧渲染覆盖新视图。
    依赖：data.js、utils.js、state.js、loader.js、menu.js（renderMenuTree）、
         modal.js（openModal）
@@ -151,7 +153,7 @@ function renderCanteenIntro() {
     canteen.floors.forEach(f => {
         shopCount += f.shops.length;
         f.shops.forEach(s => {
-            itemCountTotal += s.items.length;
+            itemCountTotal += shopItems(s).length;
         });
     });
 
@@ -221,7 +223,7 @@ function renderCanteenIntro() {
                 <div class="f-icon"><i class="fas ${icon}"></i></div>
                 <div class="f-info">
                     <div class="f-name">${floor.label}</div>
-                    <div class="f-count">${shopCount2} 家门店 · ${floor.shops.reduce((s, shop) => s + shop.items.length, 0)} 道菜品</div>
+                    <div class="f-count">${shopCount2} 家门店 · ${floor.shops.reduce((s, shop) => s + shopItems(shop).length, 0)} 道${isBreakfastMode() ? '早餐' : '菜品'}</div>
                 </div>
                 <div class="f-arrow"><i class="fas fa-chevron-right"></i></div>
             </div>
@@ -263,8 +265,8 @@ function renderCanteenIntro() {
     pageTitle.textContent = canteen.name;
     floorTag.style.display = 'none';
     shopName.style.display = 'none';
-    itemCount.textContent = `${itemCountTotal} 道菜品`;
-    subDesc.textContent = canteen.desc || '汇聚多种美食';
+    itemCount.textContent = `${itemCountTotal} 道${isBreakfastMode() ? '早餐' : '菜品'}`;
+    subDesc.textContent = (isBreakfastMode() ? '早餐时段 · ' : '') + (canteen.desc || '汇聚多种美食');
 }
 
 /** 渲染随机推荐 */
@@ -283,7 +285,7 @@ async function renderRandom(seq) {
         contentWrapper.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-dice"></i>
-                <p>暂无菜品数据，请先添加菜品（编辑 data/*.xlsx 后刷新）</p>
+                <p>${isBreakfastMode() ? '暂无早餐数据，请在 data/breakfast/*.xlsx 中添加早餐' : '暂无菜品数据，请先添加菜品（编辑 data/*.xlsx 后刷新）'}</p>
             </div>
         `;
         pageTitle.textContent = '🎲 今天吃什么';
@@ -309,7 +311,7 @@ async function renderRandom(seq) {
                     <img src="${imgUrl}" alt="${item.name}" loading="lazy" />
                 </div>
                 <div class="rc-body">
-                    <div class="rc-name">${item.name}</div>
+                    <div class="rc-name">${item.name}${item.breakfast ? ' <span class="meal-chip">早餐</span>' : ''}</div>
                     <div class="rc-price">¥${item.price}</div>
                     <div class="rc-location"><i class="fas fa-location-dot"></i> ${locationText}</div>
                     <div class="rc-desc">${item.desc || '暂无描述'}</div>
@@ -344,7 +346,7 @@ async function renderRandom(seq) {
     floorTag.style.display = 'none';
     shopName.style.display = 'none';
     itemCount.textContent = '随机推荐';
-    subDesc.textContent = `${item.canteenName} · ${item.floorLabel} · ${item.shopName}`;
+    subDesc.textContent = `${item.breakfast ? '早餐 · ' : ''}${item.canteenName} · ${item.floorLabel} · ${item.shopName}`;
 }
 
 /** 渲染菜品列表（菜品图片为本地 images/ 文件，渲染前先解析） */
@@ -394,7 +396,11 @@ async function renderCanteenMenu(seq) {
         return;
     }
 
-    // 预解析本店全部菜品图片（本地文件，速度快；结果缓存后无需重复探测）
+    // 当前模式下的菜品列表（早餐模式取该窗口的早餐；为空 = 该窗口无早餐）
+    const items = shopItems(shop);
+    const breakfast = isBreakfastMode();
+
+    // 预解析本店当前模式下的菜品图片（本地文件，速度快；结果缓存后无需重复探测）
     await resolveShopImages(shop);
     if (seq && !isRenderCurrent(seq)) return;
 
@@ -405,24 +411,45 @@ async function renderCanteenMenu(seq) {
     floorTag.textContent = tag || '楼层';
     shopName.style.display = 'inline-flex';
     shopNameText.textContent = shop.name;
-    itemCount.textContent = `${shop.items.length} 道菜品`;
-    subDesc.textContent = shop.desc || '';
+    itemCount.textContent = breakfast
+        ? (items.length ? `${items.length} 道早餐` : '无早餐')
+        : `${items.length} 道菜品`;
+    subDesc.textContent = (breakfast && items.length === 0)
+        ? '本窗口暂不提供早餐'
+        : ((breakfast ? '早餐时段 · ' : '') + (shop.desc || ''));
 
     // 店面图片展示（位于菜单网格上方；无本地店招时回退网络占位图）
     const shopImg = shop.image || `https://picsum.photos/seed/${shop.id}/900/300`;
+    const mealChip = (breakfast && items.length) ? ' <span class="meal-chip">早餐</span>' : '';
 
     let html = `
         <div class="shop-banner">
             <img src="${shopImg}" alt="${shop.name}" loading="lazy" />
             <div class="shop-banner-info">
-                <div class="shop-banner-name">${shop.name}</div>
+                <div class="shop-banner-name">${shop.name}${mealChip}</div>
                 <div class="shop-banner-desc">${shop.desc || ''}</div>
             </div>
-        </div>
-        <div class="menu-grid">`;
-    shop.items.forEach((item, index) => {
-        const imgUrl = itemImage(item);
-        html += `
+        </div>`;
+
+    if (items.length === 0) {
+        // 早餐模式下没有早餐的窗口：在菜品目录位置明确提示「无早餐」
+        html += breakfast ? `
+            <div class="empty-state breakfast-empty">
+                <i class="fas fa-mug-hot"></i>
+                <div class="empty-title">本窗口无早餐</div>
+                <p>该门店暂不供应早餐，换一个窗口看看，或点上方「正餐」切回正餐菜单。</p>
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-utensils"></i>
+                <p>该窗口暂无菜品</p>
+            </div>
+        `;
+    } else {
+        html += `<div class="menu-grid">`;
+        items.forEach((item, index) => {
+            const imgUrl = itemImage(item);
+            html += `
             <div class="menu-card" data-index="${index}">
                 <div class="card-image">
                     <img src="${imgUrl}" alt="${item.name}" loading="lazy" />
@@ -433,14 +460,15 @@ async function renderCanteenMenu(seq) {
                 </div>
             </div>
         `;
-    });
-    html += `</div>`;
+        });
+        html += `</div>`;
+    }
 
     contentWrapper.innerHTML = html;
 
     const cards = contentWrapper.querySelectorAll('.menu-card');
     cards.forEach((card, index) => {
-        const item = shop.items[index];
+        const item = items[index];
         if (item) {
             card.addEventListener('click', () => {
                 openModal(item, itemImage(item));

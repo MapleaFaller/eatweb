@@ -84,7 +84,7 @@ function renderMenuTree() {
             const btn = document.createElement('button');
             btn.className = `menu-item ${isActive ? 'active' : ''}`;
             btn.dataset.id = c.id;
-            const totalItems = c.floors.reduce((sum, f) => sum + f.shops.reduce((s, shop) => s + shop.items
+            const totalItems = c.floors.reduce((sum, f) => sum + f.shops.reduce((s, shop) => s + shopItems(shop)
                 .length, 0), 0);
             btn.innerHTML = `
                 <i class="fas ${c.icon}"></i>
@@ -116,7 +116,7 @@ function renderMenuTree() {
                     const isFloorExpanded = (expandedFloorId === floor.id);
                     const floorBtn = document.createElement('button');
                     floorBtn.className = `menu-item level-1`;
-                    const floorItems = floor.shops.reduce((sum, s) => sum + s.items.length, 0);
+                    const floorItems = floor.shops.reduce((sum, s) => sum + shopItems(s).length, 0);
                     const iconMap = ['fa-egg', 'fa-utensils', 'fa-mug-saucer', 'fa-wine-glass-alt'];
                     const idx = c.floors.indexOf(floor) % iconMap.length;
                     floorBtn.innerHTML = `
@@ -153,13 +153,15 @@ function renderMenuTree() {
                     if (isFloorExpanded) {
                         floor.shops.forEach((shop, idx) => {
                             const shopBtn = document.createElement('button');
+                            const shopCount = shopItems(shop).length;
+                            const noBreakfast = isBreakfastMode() && shopCount === 0;
                             shopBtn.className =
-                                `menu-item level-2 ${activeShopId === shop.id ? 'active' : ''}`;
+                                `menu-item level-2 ${activeShopId === shop.id ? 'active' : ''} ${noBreakfast ? 'no-breakfast-row' : ''}`;
                             const icon = shop.icon || getShopIcon(idx);
                             shopBtn.innerHTML = `
                                 <i class="fas ${icon}"></i>
                                 <span class="label">${shop.name}</span>
-                                <span class="badge">${shop.items.length}</span>
+                                ${noBreakfast ? '<span class="badge no-breakfast">无早餐</span>' : `<span class="badge">${shopCount}</span>`}
                             `;
                             shopBtn.addEventListener('click', (e) => {
                                 e.stopPropagation();

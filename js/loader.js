@@ -1,14 +1,18 @@
 /* ============================================================
    loader.js —— 本地数据加载模块
    作用：启动时直接读取本地文件作为数据源：
-        - 菜品表：data/First.xlsx、Second.xlsx、Third.xlsx
+        - 正餐表：data/First.xlsx、Second.xlsx、Third.xlsx
           （每个食堂一个 xlsx；第 1 个 sheet=一楼、第 2 个 sheet=二楼……
            每个 sheet 第 1 行表头 [餐厅, 名称, 价格, 介绍]，
            第 2 行起一行一道菜，同一餐厅的菜连续排在一起）
-        - 菜品图片：images/<图片序号>.svg/.png/... 占位示例图
-          图片序号 = 食堂号 + 楼层号 + 餐厅号 + 菜序号（十进制拼接），
-          例：第一食堂 二楼 第 1 餐厅 第 1 道菜 → 1211
-          真实照片优先：images/1211.png > .jpg > .jpeg > .webp > .svg
+        - 正餐图片：images/<食堂名>/<楼层标签>/<门店名>/<菜名>.svg/.png/...
+          在 images/ 下按“食堂 → 楼层 → 门店 → 菜”多级中文目录归档，
+          目录/文件名与 xlsx 及 js/data.js 中的名称一一对应；
+          真实照片优先：同名 .png > .jpg > .jpeg > .webp > .svg
+        - 早餐表：data/breakfast/First.xlsx、Second.xlsx、Third.xlsx
+          （格式与正餐表完全相同；某门店不在早餐表中出现 = 该窗口「无早餐」）
+        - 早餐图片：images-breakfast/<食堂名>/<楼层标签>/<门店名>/<菜名>.svg/.png/...
+          （结构与 images/ 相同，仅目录名不同）
    依赖：data.js（canteenData 骨架）、js/lib/xlsx.full.min.js（XLSX 全局）
    注意：本文件只定义函数与常量，真正执行入口在 app.js（异步启动）。
    ============================================================ */
@@ -16,15 +20,18 @@
 // ============================================================
 //  数据源配置
 // ============================================================
-const DATA_DIR = 'data';                              // 存放食堂菜品 xlsx 的目录
-const IMG_DIR = 'images';                             // 存放菜品图片的目录
-const CANTEEN_FILES = ['First.xlsx', 'Second.xlsx', 'Third.xlsx']; // 与 canteenData 顺序一一对应
+const DATA_DIR = 'data';                              // 存放食堂正餐 xlsx 的目录
+const IMG_DIR = 'images';                             // 存放正餐菜品图片的目录
+const BREAKFAST_DIR = 'data/breakfast';               // 存放食堂早餐 xlsx 的目录（结构同 data/）
+const IMG_BREAKFAST_DIR = 'images-breakfast';         // 存放早餐图片的目录（结构同 images/）
+const CANTEEN_FILES = ['First.xlsx', 'Second.xlsx', 'Third.xlsx']; // 与 canteenData 顺序一一对应（正餐）
+const BREAKFAST_FILES = ['First.xlsx', 'Second.xlsx', 'Third.xlsx']; // 早餐表文件名（同样按食堂顺序一一对应）
 const IMG_EXTS = ['png', 'jpg', 'jpeg', 'webp', 'svg'];
 
 // 兜底占位图（无任何图片文件时显示）
 const IMG_PLACEHOLDER = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%23f0ebe5" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-family="sans-serif" font-size="20" fill="%23b8ada2" text-anchor="middle" dominant-baseline="central"%3E🍽%E3%80%80暂无图片%3C/text%3E%3C/svg%3E';
 
-/** 菜品图片探测结果缓存：code -> 最终可用 URL（无则空字符串） */
+/** 菜品图片探测结果缓存：图片路径（_imgBase）-> 最终可用 URL（无则空字符串） */
 const dishImageCache = new Map();
 
 // ============================================================
@@ -47,7 +54,9 @@ function cellToPrice(v) {
 }
 
 // ============================================================
-//  图片序号工具（食堂号 + 楼层号 + 餐厅号 + 菜序号）
+//  菜品内部编号（食堂号 + 楼层号 + 餐厅号 + 菜序号）
+//  仅作标识与图片探测缓存键使用；取图路径按“食堂/楼层/门店/菜名”
+//  生成（见 rebuildFloorShops 中写入的 item._imgBase）
 // ============================================================
 
 /** 从楼层标签（如 "2F · 家常"）中取楼层号 */
@@ -57,7 +66,7 @@ function floorNumFromLabel(label) {
 }
 
 /**
- * 生成菜品图片序号
+ * 生成菜品内部编号（食堂号 + 楼层号 + 餐厅号 + 菜序号）
  * @param {number} canteenIdx  canteenData 下标（+1 得食堂号）
  * @param {number} floorNum    楼层号（取标签里的数字）
  * @param {number} shopIdx1    该楼层第几个餐厅（1 起）
@@ -67,12 +76,15 @@ function buildDishCode(canteenIdx, floorNum, shopIdx1, dishIdx1) {
     return `${canteenIdx + 1}${floorNum}${shopIdx1}${dishIdx1}`;
 }
 
-/** 一道菜可能的本地图片候选列表（优先级 = 扩展名顺序；小写/大写各试一次，兼容 .PNG/.JPG） */
+/** 一道菜可能的本地图片候选列表（优先级 = 扩展名顺序；小写/大写各试一次，兼容 .PNG/.JPG）
+ *  路径由 loader 建菜时算好的 item._imgBase 给出（无扩展名）：
+ *  images/<食堂名>/<楼层标签>/<门店名>/<菜名>，探测时逐个补扩展名后缀 */
 function dishImageCandidates(item) {
     const urls = [];
+    if (!item._imgBase) return urls;
     IMG_EXTS.forEach(ext => {
-        urls.push(`${IMG_DIR}/${item.code}.${ext}`);
-        urls.push(`${IMG_DIR}/${item.code}.${ext.toUpperCase()}`);
+        urls.push(`${item._imgBase}.${ext}`);
+        urls.push(`${item._imgBase}.${ext.toUpperCase()}`);
     });
     return urls;
 }
@@ -102,10 +114,12 @@ function probeImageUrl(url) {
  */
 async function resolveDishImage(item) {
     if (item._imgUrl !== undefined) return item._imgUrl;
-    if (!item.code) { item._imgUrl = ''; return ''; }
+    if (!item._imgBase) { item._imgUrl = ''; return ''; }
 
-    if (dishImageCache.has(item.code)) {
-        item._imgUrl = dishImageCache.get(item.code);
+    // 缓存键用图片路径：正餐 / 早餐两套菜品编号可能重复，但路径不会
+    const key = item._imgBase;
+    if (dishImageCache.has(key)) {
+        item._imgUrl = dishImageCache.get(key);
         return item._imgUrl;
     }
 
@@ -114,15 +128,16 @@ async function resolveDishImage(item) {
     const bestIdx = settled.findIndex(ok => ok);
     const url = bestIdx >= 0 ? urls[bestIdx] : '';
 
-    dishImageCache.set(item.code, url);
+    dishImageCache.set(key, url);
     item._imgUrl = url;
     return url;
 }
 
-/** 并行解析一家店全部菜品图片 */
+/** 并行解析一家店在「当前餐次模式」下的全部菜品图片 */
 async function resolveShopImages(shop) {
-    if (shop && Array.isArray(shop.items)) {
-        await Promise.all(shop.items.map(resolveDishImage));
+    const list = (typeof shopItems === 'function') ? shopItems(shop) : ((shop && shop.items) || []);
+    if (Array.isArray(list)) {
+        await Promise.all(list.map(resolveDishImage));
     }
 }
 
@@ -181,7 +196,11 @@ function rebuildFloorShops(canteen, floor, floorIdx, runShops) {
         const floorNum = floorNumFromLabel(floor.label) || floorIdx + 1;
         const items = run.items.map((it, dIdx) => ({
             ...it,
-            code: buildDishCode(canteenNum - 1, floorNum, rIdx + 1, dIdx + 1)
+            // 内部编号（标识 + 图片探测缓存键用，取图不再依赖它）
+            code: buildDishCode(canteenNum - 1, floorNum, rIdx + 1, dIdx + 1),
+            // 图片基准路径（无扩展名）：
+            // images/<食堂名>/<楼层标签>/<门店名>/<菜名>
+            _imgBase: `${IMG_DIR}/${canteen.name}/${floor.label}/${run.name}/${it.name}`
         }));
         rebuilt.push({
             id: meta.id || `${floor.id}s${rIdx + 1}`,
@@ -189,10 +208,38 @@ function rebuildFloorShops(canteen, floor, floorIdx, runShops) {
             desc: meta.desc || `${canteen.name} · ${floor.label} · ${run.name}`,
             icon: meta.icon || shopIcons[(rIdx + canteenNum * 7) % shopIcons.length],
             image: meta.image || '',
-            items
+            items,
+            // 早餐菜品（由早餐表 data/breakfast/*.xlsx 填充；为空 = 该窗口「无早餐」）
+            breakfastItems: []
         });
     });
     floor.shops = rebuilt;
+}
+
+/**
+ * 把早餐表的某一楼层解析结果挂到该楼层已建好的门店上：
+ *   - 门店名与正餐表同名 → 写入 shop.breakfastItems（图片指向 images-breakfast/）
+ *   - 早餐表中未出现的门店 → breakfastItems 保持 []（页面显示「无早餐」）
+ * 楼层 sheet 里没有任何早餐行时（只有表头）视为该楼层全部窗口都无早餐。
+ */
+function fillFloorBreakfast(canteen, floor, floorIdx, runShops, problems, file) {
+    const canteenNum = canteenData.indexOf(canteen) + 1;
+    const floorNum = floorNumFromLabel(floor.label) || floorIdx + 1;
+
+    runShops.forEach((run, rIdx) => {
+        const shop = floor.shops.find(s => s.name === run.name);
+        if (!shop) {
+            problems.push(`${canteen.name} 早餐(${file} · ${floor.label}) 中的「${run.name}」不在该楼层正餐门店列表里（已忽略）`);
+            return;
+        }
+        shop.breakfastItems = run.items.map((it, dIdx) => ({
+            ...it,
+            code: buildDishCode(canteenNum - 1, floorNum, rIdx + 1, dIdx + 1),
+            // 早餐图片基准路径（无扩展名）：
+            // images-breakfast/<食堂名>/<楼层标签>/<门店名>/<菜名>
+            _imgBase: `${IMG_BREAKFAST_DIR}/${canteen.name}/${floor.label}/${run.name}/${it.name}`
+        }));
+    });
 }
 
 /**
@@ -235,6 +282,32 @@ async function loadAllData() {
                 : '';
             problems.push(`${canteen.name}(${file}) 读取失败：${err.message || err}${hint}`);
         }
+
+        // ---- 早餐数据（data/breakfast/*.xlsx）：缺失或读取失败不影响正餐展示 ----
+        const breakfastFile = BREAKFAST_FILES[cIdx] || null;
+        if (breakfastFile) {
+            try {
+                const res = await fetch(`${BREAKFAST_DIR}/${breakfastFile}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const buf = await res.arrayBuffer();
+                const wb = XLSX.read(buf, { type: 'array' });
+
+                canteen.floors.forEach((floor, fIdx) => {
+                    const rows = parseFloorSheetRows(wb, fIdx);
+                    if (!rows) {
+                        problems.push(`${canteen.name} 早餐(${breakfastFile}) 缺少第 ${fIdx + 1} 个楼层对应的 sheet（该楼层将显示「无早餐」）`);
+                        return;
+                    }
+                    fillFloorBreakfast(canteen, floor, fIdx, groupRowsToShops(rows), problems, breakfastFile);
+                });
+            } catch (err) {
+                const isFileProtocol = typeof location !== 'undefined' && /^file:/.test(location.protocol || '');
+                const hint = isFileProtocol
+                    ? '（file:// 方式打开无法读取 xlsx，请用本地服务器方式打开）'
+                    : '';
+                problems.push(`${canteen.name} 早餐(${breakfastFile}) 读取失败：${err.message || err}（早餐模式将全部显示「无早餐」）${hint}`);
+            }
+        }
     }
     return problems;
 }
@@ -246,9 +319,16 @@ function floorShopsToEmpty(canteen) {
     });
 }
 
-/** 统计当前已加载的总菜品数 */
+/** 统计当前已加载的总菜品数（正餐） */
 function countDishes() {
     let n = 0;
     canteenData.forEach(c => c.floors.forEach(f => f.shops.forEach(s => { n += s.items.length; })));
+    return n;
+}
+
+/** 统计当前已加载的早餐菜品总数 */
+function countBreakfastDishes() {
+    let n = 0;
+    canteenData.forEach(c => c.floors.forEach(f => f.shops.forEach(s => { n += (s.breakfastItems || []).length; })));
     return n;
 }

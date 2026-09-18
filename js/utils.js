@@ -44,13 +44,16 @@ function getShop(canteenId, floorId, shopId) {
 //  菜品汇总与随机选取
 // ============================================================
 
-/** 汇总全部菜品，并附带其所属食堂 / 楼层 / 门店信息 */
+/**
+ * 汇总「当前餐次模式」下的全部菜品，并附带其所属食堂 / 楼层 / 门店信息。
+ * 早餐模式只汇总有早餐的门店（无早餐门店不参与随机推荐）。
+ */
 function getAllItems() {
     const items = [];
     canteenData.forEach(c => {
         c.floors.forEach(f => {
             f.shops.forEach(s => {
-                s.items.forEach(item => {
+                shopItems(s).forEach(item => {
                     items.push({
                         ...item,
                         canteenName: c.name,
@@ -59,7 +62,8 @@ function getAllItems() {
                         floorId: f.id,
                         shopName: s.name,
                         shopId: s.id,
-                        shopDesc: s.desc
+                        shopDesc: s.desc,
+                        breakfast: isBreakfastMode()
                     });
                 });
             });
