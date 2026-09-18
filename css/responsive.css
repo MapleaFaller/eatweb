@@ -194,6 +194,14 @@
     .main-header .header-right {
         font-size: 12px;
     }
+    /* 手机端：切换按钮收窄，避免页头换行拥挤 */
+    .meal-switch .meal-switch-btn {
+        padding: 3px 9px;
+        font-size: 12px;
+    }
+    .meal-switch .meal-switch-btn i {
+        font-size: 11px;
+    }
     .main-header .sub-desc {
         font-size: 13px;
     }

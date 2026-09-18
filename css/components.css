@@ -746,3 +746,103 @@
 .empty-state p {
     font-size: 18px;
 }
+
+/* ============================================================
+   餐次切换（正餐 / 早餐）与早餐相关标记
+   ============================================================ */
+
+/* 页头右上角的「正餐 / 早餐」切换按钮组 */
+.meal-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    background: #f4efe9;
+    border: 1px solid #e7dfd6;
+    border-radius: 30px;
+}
+
+.meal-switch .meal-switch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 30px;
+    background: transparent;
+    color: #8a7d70;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* 覆盖页头右栏默认的金色图标色，让按钮文字与图标同色 */
+.meal-switch .meal-switch-btn i {
+    font-size: 12px;
+    color: inherit;
+}
+
+.meal-switch .meal-switch-btn:hover {
+    color: #6a5f53;
+    background: rgba(245, 179, 66, 0.14);
+}
+
+.meal-switch .meal-switch-btn.active {
+    background: #f5b342;
+    color: #4a3208;
+    box-shadow: 0 1px 4px rgba(245, 179, 66, 0.45);
+}
+
+/* 「早餐」小标签（门店横幅标题、随机推荐卡片） */
+.meal-chip {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 6px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #a05a00;
+    background: #ffeccd;
+    border: 1px solid #f3d79a;
+    border-radius: 20px;
+}
+
+/* 左侧菜单里的「无早餐」徽标（替代数量徽标） */
+.menu-item .badge.no-breakfast {
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #f0c987;
+    background: rgba(245, 179, 66, 0.18);
+    white-space: nowrap;
+}
+
+.menu-item.no-breakfast-row .label {
+    color: #9a9086;
+}
+
+/* 「本窗口无早餐」空状态（菜品目录位置） */
+.empty-state.breakfast-empty {
+    padding: 48px 20px 40px;
+}
+
+.empty-state.breakfast-empty i {
+    color: #f0c987;
+}
+
+.empty-state.breakfast-empty .empty-title {
+    margin-bottom: 8px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6a5f53;
+}
+
+.empty-state.breakfast-empty p {
+    max-width: 460px;
+    margin: 0 auto;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #a89a8c;
+}

@@ -39,7 +39,7 @@
 
             <div class="sidebar-footer">
                 <i class="fas fa-clock"></i>
-                <span>营业 11:00 – 21:30</span>
+                <span id="hoursText">营业 11:00 – 21:30</span>
             </div>
         </aside>
 
@@ -55,6 +55,17 @@
                         </span>
                     </div>
                     <div class="header-right">
+                        <!-- 餐次切换：正餐 / 早餐（早餐模式下无早餐的窗口会提示「无早餐」） -->
+                        <div class="meal-switch" id="mealSwitch" role="group" aria-label="餐次切换">
+                            <button type="button" class="meal-switch-btn active" data-mode="regular"
+                                    aria-pressed="true">
+                                <i class="fas fa-utensils"></i><span>正餐</span>
+                            </button>
+                            <button type="button" class="meal-switch-btn" data-mode="breakfast"
+                                    aria-pressed="false">
+                                <i class="fas fa-mug-hot"></i><span>早餐</span>
+                            </button>
+                        </div>
                         <i class="fas fa-spoon"></i>
                         <span id="itemCount">0 条公告</span>
                     </div>
@@ -98,7 +109,7 @@
     <script src="js/utils.js"></script>       <!-- 工具函数：查找、随机、格式化 -->
     <script src="js/state.js"></script>       <!-- 全局状态与 DOM 引用 -->
     <script src="js/lib/xlsx.full.min.js"></script> <!-- SheetJS：浏览器内解析本地 data/*.xlsx -->
-    <script src="js/loader.js"></script>      <!-- 本地数据加载：xlsx 菜品表 + images/ 菜品图片 -->
+    <script src="js/loader.js"></script>      <!-- 本地数据加载：正餐/早餐 xlsx + images / images-breakfast 菜品图片 -->
     <script src="js/menu.js"></script>        <!-- 左侧菜单树渲染 -->
     <script src="js/views.js"></script>       <!-- 右侧内容区视图渲染 -->
     <script src="js/modal.js"></script>       <!-- 菜品详情模态框 -->

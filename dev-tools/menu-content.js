@@ -2,11 +2,11 @@
    menu-content.js —— dev-tools 一次性种子数据
    用途：build.js 用它生成：
       1) data/First.xlsx、Second.xlsx、Third.xlsx（页面运行时的唯一菜品数据源）
-      2) images/*.svg 占位示例图（文件名为图片序号，如 1211.svg）
+      2) images/ 多级目录下的 .svg 占位示例图（images/<食堂名>/<楼层标签>/<门店名>/<菜名>.svg）
    注意：
       - 本项目“线上”数据以 data/ 下的 xlsx 为准（直接改 xlsx 即可生效）；
         本文件只用于首次生成 / 重新初始化示例数据。
-      - canteen 顺序、floors 顺序、每家店的 items 顺序决定图片序号，
+      - canteen 顺序、floors 顺序、每家店的 items 顺序决定菜品内部编号，
         与 data.js 中的骨架（食堂/楼层/门店元信息）必须一一对应。
    ============================================================ */
 

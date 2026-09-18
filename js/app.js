@@ -1,7 +1,9 @@
 /* ============================================================
    app.js —— 应用入口模块
    作用：页面启动入口：
-        - 异步读取本地数据源（data/*.xlsx 菜品表 + images/ 菜品图片）
+        - 异步读取本地数据源（正餐 data/*.xlsx + 早餐 data/breakfast/*.xlsx，
+          图片目录 images/ 与 images-breakfast/）
+        - 顶部「正餐 / 早餐」切换按钮：切换餐次并重新渲染菜单
         - 读取完成后初始化状态并执行首次渲染（renderAll）
         - 顶部数据源状态提示（成功 / 失败原因）
         - 全局图片加载失败的兜底处理（显示占位图）
@@ -50,7 +52,7 @@ function hideDataNotice() {
     contentWrapper.innerHTML = `
         <div class="empty-state">
             <i class="fas fa-spinner fa-spin"></i>
-            <p>正在读取本地数据 data/*.xlsx 与 images/ …</p>
+            <p>正在读取本地数据 data/*.xlsx（含早餐 data/breakfast/）与 images/ …</p>
         </div>
     `;
 
@@ -73,7 +75,8 @@ function hideDataNotice() {
         setDataNotice(`⚠️ ${problems.join('；')}`, 'warn');
     } else {
         const n = countDishes();
-        setDataNotice(`✅ 数据源就绪：菜品取自本地 data/*.xlsx，图片取自本地 images/（编号示例：第一食堂二楼第1餐厅第1道菜 = 1211），共 ${n} 道菜`, 'ok', true);
+        const nb = typeof countBreakfastDishes === 'function' ? countBreakfastDishes() : 0;
+        setDataNotice(`✅ 数据源就绪：菜品取自本地 data/*.xlsx 与 data/breakfast/*.xlsx（正餐 ${n} 道 / 早餐 ${nb} 道），图片取自 images/ 与 images-breakfast/（按 食堂→楼层→门店→菜名 分目录存放）`, 'ok', true);
     }
 })();
 
@@ -86,3 +89,21 @@ document.addEventListener('error', (e) => {
         img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%23f0ebe5" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-family="sans-serif" font-size="20" fill="%23b8ada2" text-anchor="middle" dominant-baseline="central"%3E🍽%E3%80%80暂无图片%3C/text%3E%3C/svg%3E';
     }
 }, true);
+
+// ============================================================
+//  餐次切换（正餐 / 早餐）
+//  切换后重置随机推荐并整体重渲染：菜单树、数量徽标、菜品目录
+//  —— 早餐模式下没有早餐的窗口会在菜品目录显示「无早餐」。
+// ============================================================
+applyMealModeUI();
+
+document.querySelectorAll('.meal-switch-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        if (!mode || mode === mealMode) return;
+        mealMode = mode;
+        lastRandomItem = null;   // 随机推荐可能属于另一餐次，需重新抽取
+        applyMealModeUI();
+        renderAll();
+    });
+});
